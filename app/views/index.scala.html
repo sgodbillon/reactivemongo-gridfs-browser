@@ -1,6 +1,127 @@
 @(message: String)
 
 @main(message) {
+
+<script id="tmpl-stores" type="text/x-handlebars-template">
+    <ul class="list">
+        {{#each stores}}
+        <li>{{this.store}} ({{this.size}})</li>
+        {{/each}}
+    </ul>
+</script>
+
+<script id="tmpl-files-old" type="text/x-handlebars-template">
+    <ul class="list" id="fileList">
+        {{#list files}}
+        <li>plop-{{@@index}}
+            {{#ifEq options.data.index 0}}
+             ZERO
+            {{/ifEq}}
+            {{this.filename}}
+            <div class="description">
+                {{this.contentType}} - {{this.length}}
+                <!-- Store contains <em>n</em> elements of a total size of <strong>2.1 GB</strong>. -->
+            </div>
+        </li>
+        {{/list}}
+    </ul>
+</script>
+
+<script id="tmpl-files" type="text/x-dot-template">
+    <ul class="list" id="fileList">
+        {{#if hasPrevious}}
+        <li class="previous">Previous</li>
+        {{/if}}
+        {{#list files}}
+        <li id="file-entry-{{this.fileEntry}}">
+            {{#ifEq options.data.index 0}}
+            ZERO
+            {{/ifEq}}
+            [{{this.fileNumber}}] {{this.formatted.filename}}
+            <div class="description">
+                {{this.formatted.contentType}} - {{this.formatted.length}}
+                <!-- Store contains <em>n</em> elements of a total size of <strong>2.1 GB</strong>. -->
+            </div>
+        </li>
+        {{/list}}
+        {{#if hasNext}}
+        <li class="next">Next</li>
+        {{/if}}
+    </ul>
+</script>
+
+<script id="tmpl-file" type="text/x-handlebars-template">
+    <div>
+        <img src="http://us.123rf.com/400wm/400/400/arcady31/arcady311209/arcady31120900065/15399621-pdf-file-download-icon-vector-illustration.jpg">
+        <pre>
+{{this}}
+        </pre>
+        @*
+        <dl>
+            {{#eachKV this.metadata}}
+                {{show name value ../this}}
+                <dt>N: {{name}}</dt>
+                <dd>V: {{value}}</dd>
+            {{/eachKV}}
+            <dt>Filename</dt>
+            <dd>{{filename}}</dd>
+            <dt>Length</dt>
+            <dd>{{formattedLength}}</dd>
+            <dt>ChunkSize</dt>
+            <dd>{{formattedChinkSize}}</dd>
+            <dt>MD5 hash</dt>
+            <dd>{{md5}}</dd>
+            <dt>metadata1</dt>
+            <dd>Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.</dd>
+            <dt>Filename</dt>
+            <dd>my movie.avi</dd>
+            <dt>Filename</dt>
+            <dd>my movie.avi</dd>
+        </dl>
+        *@
+    </div>
+</script>
+
+<script id="tmpl-file-update" type="text/x-handlebars-template">
+    {{#if file.preview}}
+    <div>
+        <img src="{{file.preview}}">
+    </div>
+    {{/if}}
+    <form action="{{url}}" method="post" enctype="application/x-www-form-urlencoded">
+        {{#if message}}
+            <span class="notice">{{message}}</span>
+        {{/if}}
+        {{#eachKV file.readonly}}
+        <div class="field">
+            <label>{{name}}</label>
+            <input type="text" name="{{name}}" value="{{show value}}" disabled="disabled" />
+        </div>
+        {{/eachKV}}
+        {{#eachKV file.editable}}
+            <div class="field">
+                <label>{{name}}</label>
+                <input type="text" name="{{name}}" value="{{show value}}"/>
+                <a class="removeMetadata" href="#">x</a>
+            </div>
+        {{/eachKV}}
+
+        <div class="field submit">
+            <a class="addMetadata" href="#">Add metadata</a>
+            <input type="submit">
+        </div>
+    </form>
+</script>
+
+<script id="tmpl-file-update-newmetadata" type="text/x-handlebars-template">
+    <div class="field newmetadata">
+        <label>
+            <input type="text" name="newmetadata-name-{{i}}" />
+        </label>
+        <input type="text" name="newmetadata-value-{{i}}" />
+    </div>
+</script>
+
 <div id="topbar">
     GridFS Browser
 </div>
@@ -11,7 +132,7 @@
     </div> -->
     <div id="stores" class="column">
         <h2>Stores</h2>
-        <ul class="list">
+        <!-- <ul class="list">
             <li class="selected">
                 store 1
                 <div class="description">
@@ -20,11 +141,18 @@
             </li>
             <li>store 2</li>
             <li>store 3</li>
-        </ul>
+        </ul> -->
     </div>
     <div id="files" class="column">
         <h2>Files</h2>
         <ul class="list">
+            <li>
+        <a href="#" id="dropZone">
+                Drop a file here to add it to the store
+        </a>
+            </li>
+        </ul>
+        <!-- <ul class="list">
             <li class="selected">
                 file 1
                 <div class="description">
@@ -33,7 +161,7 @@
             </li>
             <li>file 2</li>
             <li>file 3</li>
-        </ul>
+        </ul>-->
     </div>
     <div id="file" class="column">
         <h2>File</h2>

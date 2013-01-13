@@ -6,10 +6,14 @@
 GET     /                           controllers.Application.index
 GET     /databases                  controllers.Application.databases
 GET     /databases/:db              controllers.Application.database(db)
-GET     /databases/:db/:store       controllers.Application.listFiles(db, store)
+GET     /databases/:db/:store       controllers.Application.listFiles(db, store, offset: Int)
 
 PUT     /databases/:db/:store       controllers.Application.add(db, store)
 POST    /databases/:db/:store/:id   controllers.Application.update(db, store, id)
+
+GET     /databases/:db/:store/:id   controllers.Application.getFile(db, store, id)
+
+GET     /router.js                  controllers.Application.jsRouter
 
 # Map static resources from the /public folder to the /assets URL path
 GET     /assets/*file               controllers.Assets.at(path="/public", file)
